@@ -2,6 +2,52 @@ import numpy as np
 from collections import deque
 
 
+def feedback_vertex(G, w):
+    # The list of vertices found by the algortihm
+    F = []
+    # The weight for each 
+    x = np.zeros_like(w)
+    
+    # Increase the "dual weight" of every vertex
+    # by an amount equal to the smallest amount of headroom
+    # remove the one that's met with equality from the graph and 
+    # add it to the solution set
+    while(remove_vertices(G)):
+        cycle = find_cycle(G)
+        headrooms = w[cycle] - x[cycle]
+        
+        increase = min(headrooms)
+        x[cycle] += increase
+        
+        F.append(cycle[np.argmin(headrooms)])
+
+        for i in cycle:
+            if x[i] == w[i]:
+                G[i] = 0
+                G[:,i] = 0
+
+    return F
+
+"""
+Repeatedly removes degree-one vertices from a graph until no more remain
+
+Args:
+    G: a 2-d numpy array representing the graph as an adjacency matrix. This object
+       will be modified. 
+
+Returns:
+   True if vertices remain, false otherwise.
+"""
+def remove_vertices(G):
+    degrees = G.sum(1)
+    while 1 in degrees:
+        ones = [i for i,j in enumerate(degrees) if j ==1]
+        for i in ones:
+            G[i] = 0
+            G[:,i] = 0
+        degrees = G.sum(1)
+    return G.sum() != 0
+
 
 """
 Finds a cycle that includes at most 2log(n) vertices of degree at least 3
@@ -83,10 +129,10 @@ def find_deg3_cycle(G):
     while len(queue) > 0:
         current = queue.popleft()
         neighbors = [i for i, j in enumerate(G[current]) if j == 1]
-        print current
+        #print current
 
         for neighbor in neighbors:
-            print neighbor
+            #print neighbor
             predecessors[neighbor] = current
             # follow paths degree 2 vertices as far as possible
             while(degrees[neighbor] < 3):
@@ -112,9 +158,9 @@ Args:
     end: the end of the cycle found by the search
 """
 def backtrace_cycle(preds, start, end):
-    print preds
-    print start 
-    print end
+    #print preds
+    #print start 
+    #print end
     current = preds[end]
     cycle = [current]
     while current != start:
@@ -135,8 +181,13 @@ def main():
                    [0,0,1,0,1,1],
                    [0,0,0,1,0,1],
                    [0,0,0,1,1,0]])
-    print find_cycle(G1)
-    print find_cycle(G2)
+    w1 = np.array([3,2,1,9])
+    w2 = np.array([2,6,4,9,1,7])
+    
+    #print find_cycle(G1)
+    #print find_cycle(G2)
+    print feedback_vertex(G1,w1)
+    print feedback_vertex(G2,w2)
 
 if __name__ == '__main__':
     main()

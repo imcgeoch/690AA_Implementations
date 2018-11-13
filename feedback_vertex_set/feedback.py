@@ -1,95 +1,106 @@
-import numpy as np
-from collections import deque
+"""
+An implementation of an approximation algorithm for Feedback Vertex Set
+"""
 
+from collections import deque
+import numpy as np
 
 def feedback_vertex(G, w):
+    """
+    Finds a low-weight set of vertices that if remove make the graph acyclic.
+    An approximation of the optimal set.
+
+    Args:
+        G: a 2-d numpy array representing the graph as an adjacency matrix.
+        w: a 1-d numpy array containing the weights of the vertices.
+    """
+    G = np.copy(G)
     # The list of vertices found by the algortihm
     F = []
-    # The weight for each 
+    # The weight for each
     x = np.zeros_like(w)
-    
+
     # Increase the "dual weight" of every vertex
     # by an amount equal to the smallest amount of headroom
-    # remove the one that's met with equality from the graph and 
+    # remove the one that's met with equality from the graph and
     # add it to the solution set
-    while(remove_vertices(G)):
+    while remove_vertices(G):
         cycle = find_cycle(G)
         headrooms = w[cycle] - x[cycle]
-        
-        increase = min(headrooms)
-        x[cycle] += increase
-        
+
+        x[cycle] += min(headrooms)
+
         F.append(cycle[np.argmin(headrooms)])
 
         for i in cycle:
             if x[i] == w[i]:
                 G[i] = 0
-                G[:,i] = 0
+                G[:, i] = 0
 
     return F
 
-"""
-Repeatedly removes degree-one vertices from a graph until no more remain
-
-Args:
-    G: a 2-d numpy array representing the graph as an adjacency matrix. This object
-       will be modified. 
-
-Returns:
-   True if vertices remain, false otherwise.
-"""
 def remove_vertices(G):
+    """
+    Repeatedly removes degree-one vertices from a graph until no more remain
+
+    Args:
+        G: a 2-d numpy array representing the graph as an adjacency matrix. This object
+            will be modified.
+
+    Returns:
+        True if vertices remain, false otherwise.
+    """
     degrees = G.sum(1)
     while 1 in degrees:
-        ones = [i for i,j in enumerate(degrees) if j ==1]
+        ones = [i for i, j in enumerate(degrees) if j == 1]
         for i in ones:
             G[i] = 0
-            G[:,i] = 0
+            G[:, i] = 0
         degrees = G.sum(1)
     return G.sum() != 0
 
 
-"""
-Finds a cycle that includes at most 2log(n) vertices of degree at least 3
-
-Args:
-    G: a 2-d numpy array representing the graph as an adjacency matrix. 
-       G must contain no vertices of degree 1. 
-
-Returns:
-    A list containing the vertices in the cycle, or None of none exists
-"""
 def find_cycle(G):
+    """
+    Finds a cycle that includes at most 2log(n) vertices of degree at least 3
+
+    Args:
+        G: a 2-d numpy array representing the graph as an adjacency matrix.
+           G must contain no vertices of degree 1.
+
+    Returns:
+        A list containing the vertices in the cycle, or None of none exists
+    """
     degrees = G.sum(1)
 
     if max(degrees) == 2:
         return find_deg2_cycle(G)
-    else: 
-        return find_deg3_cycle(G)
+    return find_deg3_cycle(G)
 
-"""
-Finds a cycle in a graph where all vertices are of degree 2
-
-Args:
-    G: a 2-d numpy array representing the graph as an adjacency matrix. 
-       G must contain only vertices of degree 2
-
-Returns:
-    A list containing a=the vertices in the cycle.
-"""
 def find_deg2_cycle(G):
+    """
+    Finds a cycle in a graph where all vertices are of degree 2
+
+    Args:
+        G: a 2-d numpy array representing the graph as an adjacency matrix.
+           G must contain only vertices of degree 2
+
+    Returns:
+        A list containing a=the vertices in the cycle.
+    """
 
     cycle = []
     degrees = G.sum(1)
+    # Pick an arbitrary vertex of degree 2.
     for i, j in enumerate(degrees):
         if j == 2:
             cycle.append(i)
             break
     current = cycle[0]
-    
+
     prev = -1
     while True:
-        neighbors = [i for i,j in enumerate(G[current]) if j == 1]
+        neighbors = [i for i, j in enumerate(G[current]) if j == 1]
         # One of the neighbors is the one we want to continue to
         for neighbor in neighbors:
             if neighbor != prev:
@@ -100,67 +111,76 @@ def find_deg2_cycle(G):
             break
         else:
             cycle.append(current)
- 
+
     return cycle
 
-"""
-Finds a cycle in a graph with at least one vertex of degree 3
-
-Args:
-    G: a 2-d numpy array representing the graph as an adjacency matrix. 
-       G must contain no vertices of degree 1 and at least one of degree 
-       3 or greater
-
-Returns:
-    A list containing a=the vertices in the cycle.
-"""
 def find_deg3_cycle(G):
-    
+    """
+    Finds a cycle in a graph with at least one vertex of degree 3
+
+    Args:
+        G: a 2-d numpy array representing the graph as an adjacency matrix.
+           G must contain no vertices of degree 1 and at least one of degree
+           3 or greater
+
+    Returns:
+        A list containing a=the vertices in the cycle.
+    """
+
+    # A dictionary of predecessors that serves as a trail of breadcrumbs.
     predecessors = {}
+
     queue = deque()
     degrees = G.sum(1)
-    
+
+    # Identify a starting vertex.
     for i, j in enumerate(degrees):
         if j > 2:
             queue.append(i)
             predecessors[i] = -1
             break
-    
-    while len(queue) > 0:
+
+    # Run a modified BFS. When finding a path of degree-2 vertices,
+    # follow all the way along it. Stop when reaching a visited vertex.
+    # this search will find a cycle with a minimum number of vertices
+    # of degree at least 3.
+    while queue:
         current = queue.popleft()
         neighbors = [i for i, j in enumerate(G[current]) if j == 1]
         #print current
 
         for neighbor in neighbors:
-            #print neighbor
             predecessors[neighbor] = current
-            # follow paths degree 2 vertices as far as possible
-            while(degrees[neighbor] < 3):
-                # look at the neighbor's neighbors
-                nns = [i for i,j in enumerate(G[neighbor]) if j == 1]
+            # Follow paths degree 2 vertices as far as possible. Because the graph
+            # contains no degree-1 vertices we don't have to worry about them.
+            while degrees[neighbor] < 3:
+                # Look at the neighbor's neighbors, pick the one that does not
+                # double back.
+                nns = [i for i, j in enumerate(G[neighbor]) if j == 1]
                 for nn in nns:
                     if nn != predecessors[neighbor]:
                         predecessors[nn] = neighbor
                         neighbor = nn
                         break
+            # If we've found an already-visited vertex, stop and calculate
+            # a cycle using the predecessor dictionary. Otherwise push the neighbor
+            # into the queue.
             if neighbor in predecessors:
                 return backtrace_cycle(predecessors, neighbor, current)
             else:
                 queue.append(neighbor)
+    # If nothing was found, return None. This won't ever happen.
     return None
 
-"""
-Given a dict of predecessors from a search, walks pack to find a cycle
-
-Args:
-    preds: a dictionary of predecessors
-    start: the beginning of the cycle found by the search
-    end: the end of the cycle found by the search
-"""
 def backtrace_cycle(preds, start, end):
-    #print preds
-    #print start 
-    #print end
+    """
+    Given a dict of predecessors from a search, walks pack to find a cycle
+
+    Args:
+        preds: a dictionary of predecessors
+        start: the beginning of the cycle found by the search
+        end: the end of the cycle found by the search
+    """
     current = preds[end]
     cycle = [current]
     while current != start:
@@ -171,23 +191,28 @@ def backtrace_cycle(preds, start, end):
 
 
 def main():
-    G1 = np.array([[0,1,0,1],
-                   [1,0,1,0],
-                   [0,1,0,1],
-                   [1,0,1,0]])
-    G2 = np.array([[0,1,1,0,0,0],
-                   [1,0,1,0,0,0],
-                   [1,1,0,1,0,0],
-                   [0,0,1,0,1,1],
-                   [0,0,0,1,0,1],
-                   [0,0,0,1,1,0]])
-    w1 = np.array([3,2,1,9])
-    w2 = np.array([2,6,4,9,1,7])
-    
+    """
+    The main method contains test cases.
+    """
+    # A couple of test cases
+
+    G1 = np.array([[0, 1, 0, 1],
+                   [1, 0, 1, 0],
+                   [0, 1, 0, 1],
+                   [1, 0, 1, 0]])
+    G2 = np.array([[0, 1, 1, 0, 0, 0],
+                   [1, 0, 1, 0, 0, 0],
+                   [1, 1, 0, 1, 0, 0],
+                   [0, 0, 1, 0, 1, 1],
+                   [0, 0, 0, 1, 0, 1],
+                   [0, 0, 0, 1, 1, 0]])
+    w1 = np.array([3, 2, 1, 9])
+    w2 = np.array([2, 6, 4, 9, 1, 7])
+
     #print find_cycle(G1)
     #print find_cycle(G2)
-    print feedback_vertex(G1,w1)
-    print feedback_vertex(G2,w2)
+    print feedback_vertex(G1, w1)
+    print feedback_vertex(G2, w2)
 
 if __name__ == '__main__':
     main()

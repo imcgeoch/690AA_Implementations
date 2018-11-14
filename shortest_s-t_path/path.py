@@ -83,9 +83,16 @@ def search(s, t, F):
 
 def main():
     """
-    The main method. Nothing here.
+    The main method contains an example.
     """
-    pass
+    G = np.array([[np.inf, 10, 1, np.inf],
+                  [10, np.inf, 3, 2],
+                  [1, 3, np.inf, 6],
+                  [np.inf, 2, 6, np.inf]])
+    s = 0
+    t = 3
+    print stpath(G, s, t)
+
 
 if __name__ == "__main__":
     main()

@@ -25,20 +25,19 @@ def feedback_vertex(G, w):
     # As long as cycles exist, Increase the "dual weight" of every
     # vertex by an amount equal to the smallest amount of headroom
     # remove the one that's met with equality from the graph and
-    # add it to the solution set.
+    # add it to the solution set. Here, "removal" is acheived by
+    # disconnecting the vertex.
     while remove_vertices(G):
         cycle = find_cycle(G)
         headrooms = w[cycle] - x[cycle]
 
         x[cycle] += min(headrooms)
+        vertexMet = cycle[np.argmin(headrooms)]
 
-        F.append(cycle[np.argmin(headrooms)])
-
-        for i in cycle:
-            if x[i] == w[i]:
-                G[i] = 0
-                G[:, i] = 0
-
+        F.append(vertexMet)
+        G[vertexMet] = 0
+        G[:, vertexMet] = 0
+ 
     return F
 
 def remove_vertices(G):

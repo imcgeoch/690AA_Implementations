@@ -1,6 +1,6 @@
 """
-An implementation of an approximation algorithm for Feedback Vertex Set. 
-Gives a log(n)-approximation. 
+An implementation of an approximation algorithm for Feedback Vertex Set.
+Gives a log(n)-approximation.
 """
 from collections import deque
 import numpy as np
@@ -8,11 +8,12 @@ import numpy as np
 
 def feedback_vertex(G, w):
     """
-    Finds a low-weight set of vertices that if remove make the graph acyclic.
-    An approximation of the optimal set.
+    Finds a low-weight set of vertices that if remove make the graph
+    acyclic. An approximation of the optimal set.
 
     Args:
-        G: a 2-d numpy array representing the graph as an adjacency matrix.
+        G: a 2-d numpy array representing the graph as an adjacency
+           matrix.
         w: a 1-d numpy array containing the weights of the vertices.
     """
     G = np.copy(G)
@@ -21,10 +22,10 @@ def feedback_vertex(G, w):
     # The weight for each
     x = np.zeros_like(w)
 
-    # Increase the "dual weight" of every vertex
-    # by an amount equal to the smallest amount of headroom
+    # As long as cycles exist, Increase the "dual weight" of every
+    # vertex by an amount equal to the smallest amount of headroom
     # remove the one that's met with equality from the graph and
-    # add it to the solution set
+    # add it to the solution set.
     while remove_vertices(G):
         cycle = find_cycle(G)
         headrooms = w[cycle] - x[cycle]
@@ -42,11 +43,13 @@ def feedback_vertex(G, w):
 
 def remove_vertices(G):
     """
-    Repeatedly removes degree-one vertices from a graph until no more remain
+    Repeatedly removes degree-one vertices from a graph until no more
+    remain. "Removal" is acheived by disconnecting the vertices.
+    Modifies the input in place.
 
     Args:
-        G: a 2-d numpy array representing the graph as an adjacency matrix. This object
-            will be modified.
+        G: a 2-d numpy array representing the graph as an adjacency
+           matrix. This object will be modified.
 
     Returns:
         True if vertices remain, false otherwise.
@@ -63,14 +66,16 @@ def remove_vertices(G):
 
 def find_cycle(G):
     """
-    Finds a cycle that includes at most 2log(n) vertices of degree at least 3
+    Finds a cycle that includes at most 2log(n) vertices of degree at
+    least 3
 
     Args:
-        G: a 2-d numpy array representing the graph as an adjacency matrix.
-           G must contain no vertices of degree 1.
+        G: a 2-d numpy array representing the graph as an adjacency
+           matrix. G must contain no vertices of degree 1.
 
     Returns:
-        A list containing the vertices in the cycle, or None of none exists
+        A list containing the vertices in the cycle, or None of none
+        exists
     """
     degrees = G.sum(1)
 
@@ -83,8 +88,8 @@ def find_deg2_cycle(G):
     Finds a cycle in a graph where all vertices are of degree 2
 
     Args:
-        G: a 2-d numpy array representing the graph as an adjacency matrix.
-           G must contain only vertices of degree 2
+        G: a 2-d numpy array representing the graph as an adjacency
+           matrix. G must contain only vertices of degree 2
 
     Returns:
         A list containing a=the vertices in the cycle.
@@ -120,15 +125,16 @@ def find_deg3_cycle(G):
     Finds a cycle in a graph with at least one vertex of degree 3
 
     Args:
-        G: a 2-d numpy array representing the graph as an adjacency matrix.
-           G must contain no vertices of degree 1 and at least one of degree
-           3 or greater
+        G: a 2-d numpy array representing the graph as an adjacency
+           matrix. G must contain no vertices of degree 1 and at least
+           one of degree 3 or greater
 
     Returns:
-        A list containing a=the vertices in the cycle.
+        A list containing the vertices in the cycle, not nessecarily
+        in order.
     """
 
-    # A dictionary of predecessors that serves as a trail of breadcrumbs.
+    # A dictionary of predecessors; serves as a trail of breadcrumbs.
     predecessors = {}
     visited = []
 
@@ -153,19 +159,21 @@ def find_deg3_cycle(G):
 
         for neighbor in neighbors:
 
-            # Follow paths degree 2 vertices as far as possible. Because the graph
-            # contains no degree-1 vertices we don't have to worry about them.
+            # Follow paths degree 2 vertices as far as possible. Because
+            # the graph contains no degree-1 vertices we don't have to
+            # worry about them.
             pathcurrent = current
             while degrees[neighbor] < 3:
-                # Look at the neighbor's neighbors, pick the one that does not
-                # double back.
+                # Look at the neighbor's neighbors, pick the one that
+                # does not double back.
                 predecessors[neighbor] = pathcurrent
-                nn = [i for i, j in enumerate(G[neighbor]) if j == 1 and i != pathcurrent][0]
+                nn = [i for i, j in enumerate(G[neighbor])
+                      if j == 1 and i != pathcurrent][0]
                 pathcurrent = neighbor
                 neighbor = nn
-            # If we've found an already-visited vertex, stop and calculate
-            # a cycle using the predecessor dictionary. Otherwise push the neighbor
-            # into the queue.
+            # If we've found an already-visited vertex, stop and
+            # calculate a cycle using the predecessor dictionary.
+            # Otherwise push the neighbor into the queue.
             if neighbor in predecessors:
                 return backtrace_cycle(predecessors, neighbor, pathcurrent)
             else:
@@ -177,7 +185,8 @@ def find_deg3_cycle(G):
 
 def backtrace_cycle(preds, start, end):
     """
-    Given a dict of predecessors from a search, walks pack to find a cycle
+    Given a dict of predecessors from a search, walks pack to find a
+    cycle
 
     Args:
         preds: a dictionary of predecessors

@@ -1,9 +1,9 @@
 """
 An implementation of an approximation algorithm for Feedback Vertex Set
 """
-
 from collections import deque
 import numpy as np
+
 
 def feedback_vertex(G, w):
     """
@@ -26,6 +26,8 @@ def feedback_vertex(G, w):
     # add it to the solution set
     while remove_vertices(G):
         cycle = find_cycle(G)
+        print "Found cycle"
+        print cycle
         headrooms = w[cycle] - x[cycle]
 
         x[cycle] += min(headrooms)
@@ -129,6 +131,7 @@ def find_deg3_cycle(G):
 
     # A dictionary of predecessors that serves as a trail of breadcrumbs.
     predecessors = {}
+    visited = []
 
     queue = deque()
     degrees = G.sum(1)
@@ -146,29 +149,30 @@ def find_deg3_cycle(G):
     # of degree at least 3.
     while queue:
         current = queue.popleft()
-        neighbors = [i for i, j in enumerate(G[current]) if j == 1]
-        #print current
+        neighbors = [i for i, j in enumerate(G[current]) if j == 1 
+                                                         and i != predecessors[current]]
 
         for neighbor in neighbors:
-            predecessors[neighbor] = current
+            
             # Follow paths degree 2 vertices as far as possible. Because the graph
             # contains no degree-1 vertices we don't have to worry about them.
+            pathcurrent = current
             while degrees[neighbor] < 3:
                 # Look at the neighbor's neighbors, pick the one that does not
                 # double back.
-                nns = [i for i, j in enumerate(G[neighbor]) if j == 1]
-                for nn in nns:
-                    if nn != predecessors[neighbor]:
-                        predecessors[nn] = neighbor
-                        neighbor = nn
-                        break
+                predecessors[neighbor] = pathcurrent
+                nn = [i for i, j in enumerate(G[neighbor]) if j == 1 and i != pathcurrent][0]
+                pathcurrent = neighbor
+                neighbor = nn
             # If we've found an already-visited vertex, stop and calculate
             # a cycle using the predecessor dictionary. Otherwise push the neighbor
             # into the queue.
             if neighbor in predecessors:
-                return backtrace_cycle(predecessors, neighbor, current)
+                return backtrace_cycle(predecessors, neighbor, pathcurrent)
             else:
                 queue.append(neighbor)
+                predecessors[neighbor] = pathcurrent
+                visited.append(neighbor)
     # If nothing was found, return None. This won't ever happen.
     return None
 
@@ -180,15 +184,27 @@ def backtrace_cycle(preds, start, end):
         preds: a dictionary of predecessors
         start: the beginning of the cycle found by the search
         end: the end of the cycle found by the search
+    Returns: 
+        The vertices in the cycle, not nessecarily in order.
     """
-    current = preds[end]
-    cycle = [current]
-    while current != start:
-        parent = preds[current]
-        cycle.append(parent)
-        current = parent
+    cycle = []
+    startpath = []
+    endpath = []
+    while start != -1:
+        startpath.append(start)
+        start = preds[start]
+    while end != -1:
+        endpath.append(end)
+        end = preds[end]
+    for i in startpath:
+        cycle.append(i)
+        if i in endpath:
+            break
+    for j in endpath:
+        if j in startpath:
+            break
+        cycle.append(j)
     return cycle
-
 
 def main():
     """

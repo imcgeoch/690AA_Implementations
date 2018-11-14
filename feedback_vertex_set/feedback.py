@@ -149,11 +149,11 @@ def find_deg3_cycle(G):
     # of degree at least 3.
     while queue:
         current = queue.popleft()
-        neighbors = [i for i, j in enumerate(G[current]) if j == 1 
-                                                         and i != predecessors[current]]
+        neighbors = [i for i, j in enumerate(G[current]) if j == 1
+                     and i != predecessors[current]]
 
         for neighbor in neighbors:
-            
+
             # Follow paths degree 2 vertices as far as possible. Because the graph
             # contains no degree-1 vertices we don't have to worry about them.
             pathcurrent = current
@@ -184,7 +184,7 @@ def backtrace_cycle(preds, start, end):
         preds: a dictionary of predecessors
         start: the beginning of the cycle found by the search
         end: the end of the cycle found by the search
-    Returns: 
+    Returns:
         The vertices in the cycle, not nessecarily in order.
     """
     cycle = []

@@ -10,9 +10,9 @@ def stpath(G, s, t):
     to Dijkstra's Algorithm
 
     Args:
-        G: A 2-d numpy array representing the graph as an adjacency matrix.
-           G(i,j) is the cost of an edge from i to j. should be np.inf
-           if no edge exists.
+        G: A 2-d numpy array representing the graph as an adjacency
+           matrix. G(i,j) is the cost of an edge from i to j.
+           Should be np.inf if no edge exists.
         s: The start vertex, given as an integer 0 <= s < n
         t: The end vertex, given as an integer 0 <= t < n, s != t
     """

@@ -37,7 +37,7 @@ def feedback_vertex(G, w):
         F.append(vertexMet)
         G[vertexMet] = 0
         G[:, vertexMet] = 0
- 
+
     return F
 
 def remove_vertices(G):
@@ -105,13 +105,10 @@ def find_deg2_cycle(G):
 
     prev = -1
     while True:
-        neighbors = [i for i, j in enumerate(G[current]) if j == 1]
-        # One of the neighbors is the one we want to continue to
-        for neighbor in neighbors:
-            if neighbor != prev:
-                prev = current
-                current = neighbor
-                break
+        neighbor = [i for i, j in enumerate(G[current])
+                    if j == 1 and i != prev][0]
+        prev = current
+        current = neighbor
         if current == cycle[0]:
             break
         else:

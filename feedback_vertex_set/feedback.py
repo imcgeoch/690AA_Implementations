@@ -1,5 +1,6 @@
 """
-An implementation of an approximation algorithm for Feedback Vertex Set
+An implementation of an approximation algorithm for Feedback Vertex Set. 
+Gives a log(n)-approximation. 
 """
 from collections import deque
 import numpy as np
@@ -26,8 +27,6 @@ def feedback_vertex(G, w):
     # add it to the solution set
     while remove_vertices(G):
         cycle = find_cycle(G)
-        print "Found cycle"
-        print cycle
         headrooms = w[cycle] - x[cycle]
 
         x[cycle] += min(headrooms)
@@ -208,7 +207,7 @@ def backtrace_cycle(preds, start, end):
 
 def main():
     """
-    The main method contains test cases.
+    The main method contains two simple test cases.
     """
     # A couple of test cases
 
@@ -225,8 +224,6 @@ def main():
     w1 = np.array([3, 2, 1, 9])
     w2 = np.array([2, 6, 4, 9, 1, 7])
 
-    #print find_cycle(G1)
-    #print find_cycle(G2)
     print feedback_vertex(G1, w1)
     print feedback_vertex(G2, w2)
 

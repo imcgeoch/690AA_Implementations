@@ -16,39 +16,53 @@ def stpath(G,s,t):
         s: The start vertex, given as an integer 0 <= s < n
         t: The end vertex, given as an integer 0 <= t < n, s != t
     """
-
-    H = G.copy()
-    # The connected component
     n = G.shape[0]
+    x = np.zeros_like(G)
     F = []
-
     C = [s]
+    
     while not t in C:
-        crossingEdges = [(i,j,H[i,j]) for i in xrange(n) for j in xrange(n) 
-                         if i in C and not j in C]
-        if crossingEdges == []:
-            return None
-        newEdge = min(crossingEdges, key = lambda edge: edge[2])
-        F.append(newEdge[0:2])
+        # Find all the edges that cross
+        deltaC = [(i,j,G[i,j] - x[i,j]) for i in xrange(n) 
+                         for j in xrange(n) if i in C and not j in C]
+        # Find the amount they will all increase by and the edge that is 
+        # met with equality
+        newEdge = min(deltaC, key = lambda edge: edge[2])
+        # Increase the primal variable for all edges that cross
         y_C = newEdge[2]
+        for i, j, w in deltaC:
+            x[i,j] += y_C
+            x[j,i] += y_C
+        
+        # Add the edge that was met with equality to F
+        F.append(newEdge[0:2])
         C.append(newEdge[1])
 
-        for i, j, w in crossingEdges:
-            H[i,j] -= y_C
-            H[j,i] -= y_C
-
-    np.set_printoptions(precision=3)
     print [((i,j), G[i,j]) for i, j in F]
     
+    # Find the path from s to t. F must be a tree so there is only one.
     path = search(s, t, F)
     return path
 
 def search(s, t, F):
+    """
+    Runs a DFS on a tree. 
+
+    Args:
+        s: The start vertex given as an int
+        t: The end vertex given as an int
+        F: A tree given as an adjacency list. 
+           For any edge (i,j) in F, i must be closer to s. 
+    """
+
+    # A dictionary of predecessors.
     preds = {}
     path = []
 
     stack = [s]
     preds[s] = -1
+
+    # DFS from s to t, leaving breadcrumbs in the dictionary.
     while stack:
         v = stack.pop()
         if v == t:
@@ -58,14 +72,17 @@ def search(s, t, F):
                 preds[j] = v
                 stack.append(j)
     
+    # Walk back along the breadcrumbs.
     while v != -1:
         path.append(v)
         v = preds[v]
 
     return path[::-1]
 
-
 def main():
+    """
+    The main method. Nothing here. 
+    """
     pass
 
 if __name__ == "__main__":

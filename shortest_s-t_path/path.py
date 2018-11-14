@@ -42,8 +42,6 @@ def stpath(G, s, t):
         F.append(newEdge[0:2])
         C.append(newEdge[1])
 
-    print [((i, j), G[i, j]) for i, j in F]
-
     # Find the path from s to t. F must be a tree so there is only one.
     path = search(s, t, F)
     return path

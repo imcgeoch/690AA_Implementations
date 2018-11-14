@@ -7,7 +7,7 @@ if the vertices in S are removed the graph is disconnected.
 
 ### Implementation
 The implementation is given in the file feedback.py, and particularly
-in the method `feedback\_vertex(G, w)`. 
+in the method `feedback_vertex(G, w)`. 
 
 The method takes two arguments. `G` should be a *n*x*n* numpy array 
 representing the graph as an adjacency matrix, where *n* is the number
@@ -42,7 +42,7 @@ The implementation is given in the file path.py, particularly in the method
 
 The method takes three arguments. `G` should be a *n*x*n* numpy array 
 representing the graph as an adjacency matrix, where *n* is the number
-of vertices in the graph. *G\_i,j* is the weight of the edge between *i* 
+of vertices in the graph. *G<sub>i,j</sub>* is the weight of the edge between *i* 
 and *j*. If there is no edge between *i* and *j* this value should be 
 `np.inf`. `s` and `t` should be the indices of the start and end vertices. 
 

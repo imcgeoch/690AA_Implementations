@@ -132,7 +132,6 @@ def find_deg3_cycle(G):
 
     # A dictionary of predecessors; serves as a trail of breadcrumbs.
     predecessors = {}
-    visited = []
 
     queue = deque()
     degrees = G.sum(1)
@@ -175,7 +174,6 @@ def find_deg3_cycle(G):
             else:
                 queue.append(neighbor)
                 predecessors[neighbor] = pathcurrent
-                visited.append(neighbor)
     # If nothing was found, return None. This won't ever happen.
     return None
 

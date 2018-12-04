@@ -25,6 +25,9 @@ def stpath(G, s, t):
         # Find all the edges that cross
         deltaC = [(i, j, G[i, j] - x[i, j]) for i in xrange(n)
                   for j in xrange(n) if i in C and not j in C]
+        # If deltaC is empty we have hit a dead end so there is no path to t
+        if deltaC == []:
+            return None
         # Find the amount they will all increase by and the edge that is
         # met with equality
         newEdge = min(deltaC, key=lambda edge: edge[2])

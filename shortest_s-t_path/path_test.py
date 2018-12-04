@@ -12,12 +12,13 @@ n = 60
 p = 0.5
 
 def get_random_instance():
-    graph = nx.erdos_renyi_graph(n + int(50 * random.random() - 25),
+    random_n = n + int(50 * random.random() - 25)
+    graph = nx.erdos_renyi_graph(random_n,
                                  p * 2 * random.random())
     for (u,v,w) in graph.edges(data=True):
         w['weight'] = random.randint(1,100)
-    s = random.randint(0, n-1)
-    t = random.randint(0, n-1)
+    s = random.randint(0, random_n-1)
+    t = random.randint(0, random_n-1)
     return graph, s, t
 
 def get_opt_length(graph, s, t):

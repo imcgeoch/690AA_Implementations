@@ -48,5 +48,7 @@ for _ in range(samples):
     if opt_length == None or alg_path == None:
         assert(alg_path == opt_length)
         continue
+    assert(alg_path[0] == s)
+    assert(alg_path[-1] == t)
     alg_length = get_path_length(graph, alg_path)
     assert(alg_length == opt_length)

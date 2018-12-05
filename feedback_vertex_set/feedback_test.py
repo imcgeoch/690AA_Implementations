@@ -68,7 +68,7 @@ for _ in range(samples):
     approx_weight = np.sum(weights[approx])
     _, opt_weight = optimal_fvs(graph, weights)
     # verifies the approximate min fvs is a loop cut set
-    assert(verify_fvs(graph, approx) == True)
+    assert(verify_fvs(graph, approx))
     # verifies this instance achieves the claimed bounds
-    assert(approx_weight <= 4*math.ceil(math.log(n))*opt_weight)
+    assert(approx_weight <= 4*math.ceil(math.log(n, 2))*opt_weight)
     print("pass")
